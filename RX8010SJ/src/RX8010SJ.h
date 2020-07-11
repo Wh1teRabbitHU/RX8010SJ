@@ -37,6 +37,12 @@
 		#define RX8010_CTRL_TEST BIT(7)
 		#define RX8010_ALARM_AE  BIT(7)
 
+		struct DateTime {
+			byte seconds;
+			byte minutes;
+			byte hours;
+		};
+
         class Adapter {
             public:
                 // Constructor/destructor
@@ -45,13 +51,19 @@
 
                 // Methods
 				void initialise(bool reset);
-                void readDateTime();
+                DateTime readDateTime();
+				void writeDateTime(DateTime dateTime);
                 
             private:
                 byte i2cAddress;
 
-				byte writeToModule(byte data);
+				byte readFromModule(byte address);
+				void writeToModule(byte address, byte data);
 				byte getValueFromBinary(byte binary, byte pos, byte val);
+				byte setFortyBinary(byte binary, byte val);
+				byte setTwentyBinary(byte binary, byte val);
+				byte setTenBinary(byte binary, byte val);
+				byte setBinary(byte binary, byte pos, byte flagVal);
         };
     }
 

@@ -13,10 +13,11 @@ namespace RX8010SJ {
   		delay(40);
 	}
 
-    void Adapter::readDateTime() {
-		byte secondsBin = writeToModule(RX8010_SEC);
-		byte minutesBin = writeToModule(RX8010_MIN);
-		byte hoursBin = writeToModule(RX8010_HOUR);
+    DateTime Adapter::readDateTime() {
+		DateTime dateTime;
+		byte secondsBin = readFromModule(RX8010_SEC);
+		byte minutesBin = readFromModule(RX8010_MIN);
+		byte hoursBin = readFromModule(RX8010_HOUR);
 
 		byte seconds = getValueFromBinary(secondsBin, 6, 40);
 		seconds += getValueFromBinary(secondsBin, 5, 20);
@@ -41,18 +42,37 @@ namespace RX8010SJ {
 		hours += getValueFromBinary(hoursBin, 1, 2);
 		hours += getValueFromBinary(hoursBin, 0, 1);
 
-		Serial.println("-------------------------------");
-		Serial.print(hours);
-		Serial.print(":");
-		Serial.print(minutes);
-		Serial.print(":");
-		Serial.println(seconds);
-		Serial.println("-------------------------------");
+		dateTime.seconds = seconds;
+		dateTime.minutes = minutes;
+		dateTime.hours = hours;
+
+		return dateTime;
     }
 
-	byte Adapter::writeToModule(byte data) {
+	void Adapter::writeDateTime(DateTime dateTime) {
+		byte seconds = dateTime.seconds % 10;
+		byte minutes = dateTime.minutes % 10;
+		byte hours = dateTime.hours % 10;
+
+		seconds = setFortyBinary(seconds, dateTime.seconds);
+		seconds = setTwentyBinary(seconds, dateTime.seconds);
+		seconds = setTenBinary(seconds, dateTime.seconds);
+
+		minutes = setFortyBinary(minutes, dateTime.minutes);
+		minutes = setTwentyBinary(minutes, dateTime.minutes);
+		minutes = setTenBinary(minutes, dateTime.minutes);
+
+		hours = setTwentyBinary(hours, dateTime.hours);
+		hours = setTenBinary(hours, dateTime.hours);
+
+		writeToModule(RX8010_SEC, seconds);
+		writeToModule(RX8010_MIN, minutes);
+		writeToModule(RX8010_HOUR, hours);
+	}
+
+	byte Adapter::readFromModule(byte address) {
 		Wire.beginTransmission(i2cAddress);
-		Wire.write(data);
+		Wire.write(address);
 		Wire.endTransmission();
 		Wire.requestFrom(i2cAddress, 1);
 
@@ -63,8 +83,50 @@ namespace RX8010SJ {
 		return -1;
 	}
 
+	void Adapter::writeToModule(byte address, byte data) {
+		Wire.beginTransmission(i2cAddress);
+		Wire.write(address);
+		Wire.write(data);
+		Wire.endTransmission();
+	}
+
 	byte Adapter::getValueFromBinary(byte binary, byte pos, byte val) {
 		return ((binary >> pos) & 1) == 1 ? val : 0;
+	}
+
+	byte Adapter::setFortyBinary(byte binary, byte val) {
+		if (val >= 40) {
+			return setBinary(binary, 6, 1);
+		}	
+
+		return setBinary(binary, 6, 0);
+	}
+
+	byte Adapter::setTwentyBinary(byte binary, byte val) {
+		if (val >= 20 && val < 40) {
+			return setBinary(binary, 5, 1);
+		}	
+
+		return setBinary(binary, 5, 0);
+	}
+
+	byte Adapter::setTenBinary(byte binary, byte val) {
+		if ((val >= 10 && val < 20) ||
+			(val >= 30 && val < 40) ||
+			(val >= 50 && val < 60)) {
+
+			return setBinary(binary, 4, 1);
+		}	
+
+		return setBinary(binary, 4, 0);
+	}
+
+	byte Adapter::setBinary(byte binary, byte pos, byte flagVal) {
+		if (flagVal == 1) {
+			return binary | (1 << pos);
+		}
+
+		return binary & (~(1 << pos));
 	}
 
 }
