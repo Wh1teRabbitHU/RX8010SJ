@@ -8,9 +8,45 @@ namespace RX8010SJ {
 
     Adapter::~Adapter() {}
 
-	void Adapter::initialise(bool reset) {
+	bool Adapter::initAdapter() {
 		Wire.begin();
   		delay(40);
+
+		return initModule();
+	}
+
+	bool Adapter::initModule() {
+		byte flagValue = readFromModule(RX8010_FLAG);
+		byte vlf = getValueFromBinary(flagValue, 1, 1);
+
+		// It has power issue and needs a reinitialisation
+		if (vlf == 1) {
+			while (vlf == 1) {
+				flagValue = setBinary(flagValue, 1, 0);
+				writeToModule(RX8010_FLAG, vlf);
+				delay(10);
+				flagValue = readFromModule(RX8010_FLAG);
+				vlf = getValueFromBinary(flagValue, 1, 1);
+			}
+
+			resetModule();
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void Adapter::resetModule() {
+		writeToModule(RX8010_RESV17, RX8010_ADDR17_DEF_VAL);
+		writeToModule(RX8010_RESV30, RX8010_ADDR30_DEF_VAL);
+		writeToModule(RX8010_RESV31, RX8010_ADDR31_DEF_VAL);
+		writeToModule(RX8010_IRQ, RX8010_IRQ_DEF_VAL);
+
+		writeFlag(RX8010_EXT, 4, 0);  // TE bit (4) to zero
+		writeFlag(RX8010_FLAG, 1, 0); // VLF bit (1) to zero
+
+		writeToModule(RX8010_CTRL, RX8010_CTRL_DEF_VAL);
 	}
 
     DateTime Adapter::readDateTime() {
@@ -88,6 +124,12 @@ namespace RX8010SJ {
 		Wire.write(address);
 		Wire.write(data);
 		Wire.endTransmission();
+	}
+
+	void Adapter::writeFlag(byte address, byte pos, byte value) {
+		byte addressValue = readFromModule(address);
+		addressValue = setBinary(addressValue, pos, value);
+		writeToModule(address, addressValue);
 	}
 
 	byte Adapter::getValueFromBinary(byte binary, byte pos, byte val) {

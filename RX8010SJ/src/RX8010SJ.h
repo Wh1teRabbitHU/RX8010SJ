@@ -26,6 +26,14 @@
 		#define RX8010_RESV31  0x31
 		#define RX8010_IRQ     0x32
 
+		/* Default values for reseting the module */
+		#define RX8010_ADDR17_DEF_VAL 0xD8
+		#define RX8010_ADDR30_DEF_VAL 0x00
+		#define RX8010_ADDR31_DEF_VAL 0x08
+		#define RX8010_ADDR31_DEF_VAL 0x08
+		#define RX8010_IRQ_DEF_VAL    0x04
+		#define RX8010_CTRL_DEF_VAL   0x04
+
 		#define RX8010_EXT_WADA  BIT(3)
 		#define RX8010_FLAG_VLF  BIT(1)
 		#define RX8010_FLAG_AF   BIT(3)
@@ -50,8 +58,10 @@
                 virtual ~Adapter();
 
                 // Methods
-				void initialise(bool reset);
-                DateTime readDateTime();
+				bool initAdapter();
+				bool initModule();
+				void resetModule(void);
+                DateTime readDateTime(void);
 				void writeDateTime(DateTime dateTime);
                 
             private:
@@ -59,6 +69,7 @@
 
 				byte readFromModule(byte address);
 				void writeToModule(byte address, byte data);
+				void writeFlag(byte address, byte pos, byte value);
 				byte getValueFromBinary(byte binary, byte pos, byte val);
 				byte setFortyBinary(byte binary, byte val);
 				byte setTwentyBinary(byte binary, byte val);

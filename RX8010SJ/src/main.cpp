@@ -12,7 +12,12 @@ void setup() {
   defaultDateTime.hours = 15;
 
   Serial.begin(9600);
-  adapter.initialise(true);
+  bool reseted = adapter.initAdapter();
+
+  if (reseted) {
+    Serial.println("The adapter has been reseted!");
+  }
+
   adapter.writeDateTime(defaultDateTime);
 
   Serial.println("Initialised");
