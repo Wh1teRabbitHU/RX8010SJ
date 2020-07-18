@@ -1,10 +1,9 @@
-#include <Arduino.h>
 #include <RX8010SJ.h>
 
 #define RX8010_I2C_ADDR 0x32
 
 const char * dayOfWeekStrings[] = {
-  	"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+	"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
 };
 
 RX8010SJ::Adapter adapter = RX8010SJ::Adapter(RX8010_I2C_ADDR);
