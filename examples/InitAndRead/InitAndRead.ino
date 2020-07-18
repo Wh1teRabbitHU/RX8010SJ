@@ -19,13 +19,12 @@ void setup() {
 	defaultDateTime.year = 20;
 
 	Serial.begin(9600);
-	bool reseted = adapter.initAdapter();
+	bool reset = adapter.initAdapter();
 
-	if (reseted) {
-		Serial.println("The adapter has been reseted!");
+	if (reset) {
+		Serial.println("The adapter has been reset!");
+		adapter.writeDateTime(defaultDateTime);
 	}
-
-	adapter.writeDateTime(defaultDateTime);
 
 	Serial.println("Initialised");
 }
