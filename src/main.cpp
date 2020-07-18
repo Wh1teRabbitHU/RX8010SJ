@@ -3,13 +3,21 @@
 
 #define RX8010_I2C_ADDR 0x32
 
+const char * dayOfWeekStrings[] = {
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+};
+
 RX8010SJ::Adapter adapter = RX8010SJ::Adapter(RX8010_I2C_ADDR);
 RX8010SJ::DateTime defaultDateTime = RX8010SJ::DateTime();
 
 void setup() {
-  defaultDateTime.seconds = 5;
-  defaultDateTime.minutes = 25;
-  defaultDateTime.hours = 15;
+  defaultDateTime.second = 5;
+  defaultDateTime.minute = 25;
+  defaultDateTime.hour = 15;
+  defaultDateTime.dayOfWeek = 5;
+  defaultDateTime.dayOfMonth = 18;
+  defaultDateTime.month = 7;
+  defaultDateTime.year = 20;
 
   Serial.begin(9600);
   bool reseted = adapter.initAdapter();
@@ -27,11 +35,20 @@ void loop() {
   RX8010SJ::DateTime dateTime = adapter.readDateTime();
 
   Serial.println("-------------------------------");
-  Serial.print(dateTime.hours);
+  Serial.print("20");
+  Serial.print(dateTime.year);
+  Serial.print("-");
+  Serial.print(dateTime.month);
+  Serial.print("-");
+  Serial.print(dateTime.dayOfMonth);
+  Serial.print(" (");
+  Serial.print(dayOfWeekStrings[dateTime.dayOfWeek]);
+  Serial.print(") ");
+  Serial.print(dateTime.hour);
   Serial.print(":");
-  Serial.print(dateTime.minutes);
+  Serial.print(dateTime.minute);
   Serial.print(":");
-  Serial.println(dateTime.seconds);
+  Serial.println(dateTime.second);
   Serial.println("-------------------------------");
 
 	delay(1000);
