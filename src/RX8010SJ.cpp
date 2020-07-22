@@ -111,6 +111,61 @@ namespace RX8010SJ {
 		writeToModule(RX8010_YEAR, year);
 	}
 
+	void Adapter::setFCTCounter(uint16_t counterValue, byte tsel) {
+		byte firstHalf = counterValue & 0b11111111;
+		byte secondHalf = counterValue >> 8;
+
+		writeToModule(RX8010_TCOUNT0, firstHalf);
+		writeToModule(RX8010_TCOUNT1, secondHalf);
+
+		writeFlag(RX8010_EXT, RX8010_TSEL0_POS, getValueFromBinary(tsel, RX8010_TSEL0_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL1_POS, getValueFromBinary(tsel, RX8010_TSEL1_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL2_POS, getValueFromBinary(tsel, RX8010_TSEL2_POS));
+	}
+
+	uint16_t Adapter::getFCTCounter() {
+		byte firstHalf = readFromModule(RX8010_TCOUNT0);
+		byte secondHalf = readFromModule(RX8010_TCOUNT1);
+
+		return firstHalf + (secondHalf << 8);
+	}
+
+	void Adapter::setFCTOutput(byte output) {
+		if (output > 1) {
+			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 0);
+		} else {
+			writeFlag(RX8010_IRQ, RX8010_TMPIN_POS, output);
+			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
+		}
+	}
+
+	bool Adapter::checkFCT() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool interrupted = getValueFromBinary(flag, RX8010_TF_POS) == 1;
+
+		if (interrupted) {
+			clearFCT();
+		}
+
+		return interrupted;
+	}
+
+	void Adapter::clearFCT() {
+		writeFlag(RX8010_FLAG, RX8010_TF_POS, 0);
+	}
+
+	void Adapter::startFCT() {
+		writeFlag(RX8010_CTRL, RX8010_STOP_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
+		writeFlag(RX8010_EXT, RX8010_TE_POS, 1);
+	}
+
+	void Adapter::stopFCT() {
+		writeFlag(RX8010_EXT, RX8010_TE_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 1);
+	}
+
 	byte Adapter::readFromModule(byte address) {
 		Wire.beginTransmission(i2cAddress);
 		Wire.write(address);

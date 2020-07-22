@@ -34,8 +34,16 @@
 		#define RX8010_IRQ_DEF_VAL    0x04
 		#define RX8010_CTRL_DEF_VAL   0x04
 
-		#define RX8010_VLF_POS  1
-		#define RX8010_TE_POS   4
+		#define RX8010_VLF_POS   1
+		#define RX8010_TE_POS    4
+		#define RX8010_TSEL0_POS 0
+		#define RX8010_TSEL1_POS 1
+		#define RX8010_TSEL2_POS 2
+		#define RX8010_TIE_POS   4
+		#define RX8010_TMPIN_POS 2
+		#define RX8010_TF_POS    4
+		#define RX8010_STOP_POS  6
+		#define RX8010_TSTP_POS  2
 
 		struct DateTime {
 			byte second;
@@ -59,6 +67,13 @@
 				void resetModule(void);
                 DateTime readDateTime(void);
 				void writeDateTime(DateTime dateTime);
+				void setFCTCounter(uint16_t counterValue, byte tsel);
+				uint16_t getFCTCounter();
+				void setFCTOutput(byte output);
+				bool checkFCT();
+				void clearFCT();
+				void startFCT();
+				void stopFCT();
 
             private:
                 byte i2cAddress;
