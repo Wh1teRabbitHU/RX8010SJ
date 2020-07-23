@@ -47,6 +47,9 @@
 		#define RX8010_AIE_POS   3
 		#define RX8010_WADA_POS  3
 		#define RX8010_AF_POS    3
+		#define RX8010_USEL_POS  5
+		#define RX8010_UF_POS    5
+		#define RX8010_UIE_POS   5
 
 		#define RX8010_AL_DISABLED 0b10000000
 
@@ -70,6 +73,7 @@
 				bool initAdapter();
 				bool initModule();
 				void resetModule(void);
+				void toggleGlobalStop(bool stopEnabled);
 
 				// Calendar
                 DateTime readDateTime(void);
@@ -88,6 +92,12 @@
 				void enableAlarm();
 				void disableAlarm();
 				bool checkAlarm();
+
+				// Time Update Interrupt
+				void setTUIMode(bool minute);
+				void enableTUI();
+				void disableTUI();
+				bool checkTUI();
 
             private:
                 byte i2cAddress;

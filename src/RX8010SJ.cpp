@@ -56,6 +56,10 @@ namespace RX8010SJ {
 		writeToModule(RX8010_CTRL, RX8010_CTRL_DEF_VAL);
 	}
 
+	void Adapter::toggleGlobalStop(bool stopEnabled) {
+		writeFlag(RX8010_CTRL, RX8010_STOP_POS, stopEnabled ? 1 : 0);
+	}
+
     DateTime Adapter::readDateTime() {
 		byte secondBin = readFromModule(RX8010_SEC);
 		byte minuteBin = readFromModule(RX8010_MIN);
@@ -146,7 +150,6 @@ namespace RX8010SJ {
 	}
 
 	void Adapter::enableFCT() {
-		writeFlag(RX8010_CTRL, RX8010_STOP_POS, 0);
 		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 0);
 		writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
 		writeFlag(RX8010_EXT, RX8010_TE_POS, 1);
@@ -230,6 +233,29 @@ namespace RX8010SJ {
 		}
 
 		return triggered;
+	}
+
+	void Adapter::setTUIMode(bool minute) {
+		writeFlag(RX8010_EXT, RX8010_USEL_POS, minute ? 1 : 0);
+	}
+
+	void Adapter::enableTUI() {
+		writeFlag(RX8010_CTRL, RX8010_UIE_POS, 1);
+	}
+
+	void Adapter::disableTUI() {
+		writeFlag(RX8010_CTRL, RX8010_UIE_POS, 0);
+	}
+
+	bool Adapter::checkTUI() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool interrupted = getValueFromBinary(flag, RX8010_UF_POS) == 1;
+
+		if (interrupted) {
+			writeFlag(RX8010_FLAG, RX8010_UF_POS, 0);
+		}
+
+		return interrupted;
 	}
 
 	/**
