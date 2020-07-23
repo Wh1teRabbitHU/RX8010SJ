@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <RX8010SJ.h>
 
 #define RX8010_I2C_ADDR 0x32
@@ -50,25 +49,19 @@ void setup() {
 
 	adapter.disableFCT();
 	adapter.setFCTOutput(0);
-	adapter.setFCTCounter(1, 0b010); // 1 seconds
+	adapter.setFCTCounter(1, 0b011); // 1 minutes
 	adapter.enableFCT();
 
 	Serial.println("Initialised");
 }
 
 void loop() {
-	delay(100);
+	delay(500);
 
 	bool interrupted = adapter.checkFCT();
 
 	if (interrupted) {
-		Serial.println("1 second passed");
+		Serial.println("1 minute passed");
 		readDateTime();
-		adapter.disableFCT();
-
-		Serial.println("I pause it for 5 seconds");
-		delay(5000);
-		adapter.enableFCT();
-		Serial.println("Started");
 	}
 }

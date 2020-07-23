@@ -82,6 +82,22 @@ There are two main objects that can be used in this library: The Adapter class a
 - __bool initModule(void)__: This method will initialise the RX8010SJ if needed. Firstly it checks the VLF flag and if the oscillator had issue, then it will wait arbitrary amount of time until the module restart itself and then it call the resetModule method to clear any invalid state. In this case any predefined time values or setting flags will be reset to default. This method will return with a bool depending on the state of the VLF flag. If the module needed to execute a software reset, then it returns true. (recommended to check the outcome and if needed, setup the module with the desired values afterwards)
 - __DateTime readDateTime(void)__: This method will read the module and returns with the current state of the clock. DateTime is a struct which is holding date and time related values. For more details about it's attributes, check the DateTime documentation bellow.
 - __void writeDateTime(DateTime dateTime)__: You can set or update the time with calling this method. The input parameter is a custom DateTime struct instance. For more details about it's attributes, check the DateTime documentation bellow.
+- __void setFCTCounter(uint16_t multiplier, byte frequency)__: (TODO: Function implemented, documentation needed)
+- __uint16_t getFCTCounter()__: (TODO: Function implemented, documentation needed)
+- __void setFCTOutput(byte pin)__: (TODO: Function implemented, documentation needed)
+- __void enableFCT()__: (TODO: Function implemented, documentation needed)
+- __void disableFCT()__: (TODO: Function implemented, documentation needed)
+- __bool checkFCT()__: (TODO: Function implemented, documentation needed)
+- __void setAlarm(DateTime time, byte mode)__: (TODO: Function implemented, documentation needed)
+- __void enableAlarm()__: (TODO: Function implemented, documentation needed)
+- __void disableAlarm()__: (TODO: Function implemented, documentation needed)
+- __bool checkAlarm()__: (TODO: Function implemented, documentation needed)
+- __void setTUIMode(bool minute)__: (TODO: Function implemented, documentation needed)
+- __void enableTUI()__: (TODO: Function implemented, documentation needed)
+- __void disableTUI()__: (TODO: Function implemented, documentation needed)
+- __bool checkTUI()__: (TODO: Function implemented, documentation needed)
+- __void enableFOUT(byte frequency, byte pin)__: (TODO: Function implemented, documentation needed)
+- __void disableFOUT()__: (TODO: Function implemented, documentation needed)
 
 ### DateTime - Attributes
 

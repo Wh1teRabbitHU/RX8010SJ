@@ -8,6 +8,12 @@ namespace RX8010SJ {
 
     Adapter::~Adapter() {}
 
+	/**
+	 *
+	 * PUBLIC FUNCTIONS
+	 *
+	 */
+
 	bool Adapter::initAdapter() {
 		Wire.begin();
   		delay(40);
@@ -48,6 +54,10 @@ namespace RX8010SJ {
 		writeFlag(RX8010_FLAG, RX8010_VLF_POS, 0);
 
 		writeToModule(RX8010_CTRL, RX8010_CTRL_DEF_VAL);
+	}
+
+	void Adapter::toggleGlobalStop(bool stopEnabled) {
+		writeFlag(RX8010_CTRL, RX8010_STOP_POS, stopEnabled ? 1 : 0);
 	}
 
     DateTime Adapter::readDateTime() {
@@ -110,6 +120,178 @@ namespace RX8010SJ {
 		writeToModule(RX8010_MONTH, month);
 		writeToModule(RX8010_YEAR, year);
 	}
+
+	void Adapter::setFCTCounter(uint16_t multiplier, byte frequency) {
+		byte firstHalf = multiplier & 0b11111111;
+		byte secondHalf = multiplier >> 8;
+
+		writeToModule(RX8010_TCOUNT0, firstHalf);
+		writeToModule(RX8010_TCOUNT1, secondHalf);
+
+		writeFlag(RX8010_EXT, RX8010_TSEL0_POS, getValueFromBinary(frequency, RX8010_TSEL0_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL1_POS, getValueFromBinary(frequency, RX8010_TSEL1_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL2_POS, getValueFromBinary(frequency, RX8010_TSEL2_POS));
+	}
+
+	uint16_t Adapter::getFCTCounter() {
+		byte firstHalf = readFromModule(RX8010_TCOUNT0);
+		byte secondHalf = readFromModule(RX8010_TCOUNT1);
+
+		return firstHalf + (secondHalf << 8);
+	}
+
+	void Adapter::setFCTOutput(byte pin) {
+		if (pin > 1) {
+			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 0);
+		} else {
+			writeFlag(RX8010_IRQ, RX8010_TMPIN_POS, pin);
+			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
+		}
+	}
+
+	void Adapter::enableFCT() {
+		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
+		writeFlag(RX8010_EXT, RX8010_TE_POS, 1);
+	}
+
+	void Adapter::disableFCT() {
+		writeFlag(RX8010_EXT, RX8010_TE_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 1);
+	}
+
+	bool Adapter::checkFCT() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool interrupted = getValueFromBinary(flag, RX8010_TF_POS) == 1;
+
+		if (interrupted) {
+			writeFlag(RX8010_FLAG, RX8010_TF_POS, 0);
+		}
+
+		return interrupted;
+	}
+
+	void Adapter::setAlarm(DateTime time, byte mode) {
+		byte minute;
+		byte hour;
+
+		if (time.minute == 255) {
+			minute = RX8010_AL_DISABLED;
+		} else {
+			minute = time.minute % 10;
+			minute = setFortyBinary(minute, time.minute);
+			minute = setTwentyBinary(minute, time.minute);
+			minute = setTenBinary(minute, time.minute);
+		}
+
+		if (time.hour == 255) {
+			hour = RX8010_AL_DISABLED;
+		} else {
+			hour = time.hour % 10;
+			hour = setTwentyBinary(hour, time.hour);
+			hour = setTenBinary(hour, time.hour);
+		}
+
+		writeToModule(RX8010_ALMIN, minute);
+		writeToModule(RX8010_ALHOUR, hour);
+
+		if (mode == 1) {
+			writeToModule(RX8010_ALWDAY, time.dayOfWeek == 255 ? RX8010_AL_DISABLED : time.dayOfWeek);
+		} else {
+			byte day;
+
+			if (time.hour == 255) {
+				day = RX8010_AL_DISABLED;
+			} else {
+				day = time.dayOfMonth % 10;
+				day = setTwentyBinary(hour, time.hour);
+				day = setTenBinary(hour, time.hour);
+			}
+
+			writeToModule(RX8010_ALWDAY, day);
+		}
+
+		writeFlag(RX8010_EXT, RX8010_WADA_POS, mode == 1 ? 0 : 1);
+	}
+
+	void Adapter::enableAlarm() {
+		writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_AIE_POS, 1);
+	}
+
+	void Adapter::disableAlarm() {
+		writeFlag(RX8010_CTRL, RX8010_AIE_POS, 0);
+		writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+	}
+
+	bool Adapter::checkAlarm() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool triggered = getValueFromBinary(flag, RX8010_AF_POS) == 1;
+
+		if (triggered) {
+			writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+		}
+
+		return triggered;
+	}
+
+	void Adapter::setTUIMode(bool minute) {
+		writeFlag(RX8010_EXT, RX8010_USEL_POS, minute ? 1 : 0);
+	}
+
+	void Adapter::enableTUI() {
+		writeFlag(RX8010_CTRL, RX8010_UIE_POS, 1);
+	}
+
+	void Adapter::disableTUI() {
+		writeFlag(RX8010_CTRL, RX8010_UIE_POS, 0);
+	}
+
+	bool Adapter::checkTUI() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool interrupted = getValueFromBinary(flag, RX8010_UF_POS) == 1;
+
+		if (interrupted) {
+			writeFlag(RX8010_FLAG, RX8010_UF_POS, 0);
+		}
+
+		return interrupted;
+	}
+
+	void Adapter::enableFOUT(byte frequency, byte pin) {
+		switch (frequency) {
+			case 3:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 1);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 1);
+				break;
+			case 2:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 0);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 1);
+				break;
+			case 1:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 1);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 0);
+				break;
+			case 0:
+			default:
+				disableFOUT();
+				return;
+		}
+
+		writeFlag(RX8010_IRQ, RX8010_FOPIN0_POS, pin == 1 ? 1 : 0);
+		writeFlag(RX8010_IRQ, RX8010_FOPIN1_POS, 0);
+	}
+
+	void Adapter::disableFOUT() {
+		writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 0);
+		writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 0);
+	}
+
+	/**
+	 *
+	 * PRIVATE FUNCTIONS
+	 *
+	 */
 
 	byte Adapter::readFromModule(byte address) {
 		Wire.beginTransmission(i2cAddress);
