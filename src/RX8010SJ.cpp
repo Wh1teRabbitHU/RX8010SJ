@@ -258,6 +258,35 @@ namespace RX8010SJ {
 		return interrupted;
 	}
 
+	void Adapter::enableFOUT(byte frequency, byte pin) {
+		switch (frequency) {
+			case 3:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 1);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 1);
+				break;
+			case 2:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 0);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 1);
+				break;
+			case 1:
+				writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 1);
+				writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 0);
+				break;
+			case 0:
+			default:
+				disableFOUT();
+				return;
+		}
+
+		writeFlag(RX8010_IRQ, RX8010_FOPIN0_POS, pin == 1 ? 1 : 0);
+		writeFlag(RX8010_IRQ, RX8010_FOPIN1_POS, 0);
+	}
+
+	void Adapter::disableFOUT() {
+		writeFlag(RX8010_EXT, RX8010_FSEL0_POS, 0);
+		writeFlag(RX8010_EXT, RX8010_FSEL1_POS, 0);
+	}
+
 	/**
 	 *
 	 * PRIVATE FUNCTIONS

@@ -34,22 +34,26 @@
 		#define RX8010_IRQ_DEF_VAL    0x04
 		#define RX8010_CTRL_DEF_VAL   0x04
 
-		#define RX8010_VLF_POS   1
-		#define RX8010_TE_POS    4
-		#define RX8010_TSEL0_POS 0
-		#define RX8010_TSEL1_POS 1
-		#define RX8010_TSEL2_POS 2
-		#define RX8010_TIE_POS   4
-		#define RX8010_TMPIN_POS 2
-		#define RX8010_TF_POS    4
-		#define RX8010_STOP_POS  6
-		#define RX8010_TSTP_POS  2
-		#define RX8010_AIE_POS   3
-		#define RX8010_WADA_POS  3
-		#define RX8010_AF_POS    3
-		#define RX8010_USEL_POS  5
-		#define RX8010_UF_POS    5
-		#define RX8010_UIE_POS   5
+		#define RX8010_VLF_POS    1
+		#define RX8010_TE_POS     4
+		#define RX8010_TSEL0_POS  0
+		#define RX8010_TSEL1_POS  1
+		#define RX8010_TSEL2_POS  2
+		#define RX8010_TIE_POS    4
+		#define RX8010_TMPIN_POS  2
+		#define RX8010_TF_POS     4
+		#define RX8010_STOP_POS   6
+		#define RX8010_TSTP_POS   2
+		#define RX8010_AIE_POS    3
+		#define RX8010_WADA_POS   3
+		#define RX8010_AF_POS     3
+		#define RX8010_USEL_POS   5
+		#define RX8010_UF_POS     5
+		#define RX8010_UIE_POS    5
+		#define RX8010_FSEL0_POS  6
+		#define RX8010_FSEL1_POS  7
+		#define RX8010_FOPIN0_POS 0
+		#define RX8010_FOPIN1_POS 1
 
 		#define RX8010_AL_DISABLED 0b10000000
 
@@ -98,6 +102,10 @@
 				void enableTUI();
 				void disableTUI();
 				bool checkTUI();
+
+				// Frequency output
+				void enableFOUT(byte frequency, byte pin);
+				void disableFOUT();
 
             private:
                 byte i2cAddress;
