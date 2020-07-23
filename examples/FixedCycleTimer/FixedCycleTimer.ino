@@ -47,10 +47,10 @@ void setup() {
 		adapter.writeDateTime(defaultDateTime);
 	}
 
-	adapter.stopFCT();
+	adapter.disableFCT();
 	adapter.setFCTOutput(0);
 	adapter.setFCTCounter(1, 0b011); // 1 minutes
-	adapter.startFCT();
+	adapter.enableFCT();
 
 	Serial.println("Initialised");
 }

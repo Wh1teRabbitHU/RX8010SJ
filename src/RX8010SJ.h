@@ -44,6 +44,9 @@
 		#define RX8010_TF_POS    4
 		#define RX8010_STOP_POS  6
 		#define RX8010_TSTP_POS  2
+		#define RX8010_AIE_POS   3
+		#define RX8010_WADA_POS  3
+		#define RX8010_AF_POS    3
 
 		struct DateTime {
 			byte second;
@@ -65,15 +68,24 @@
 				bool initAdapter();
 				bool initModule();
 				void resetModule(void);
+
+				// Calendar
                 DateTime readDateTime(void);
 				void writeDateTime(DateTime dateTime);
+
+				// Fixed cycle interrupt
 				void setFCTCounter(uint16_t counterValue, byte tsel);
 				uint16_t getFCTCounter();
 				void setFCTOutput(byte output);
+				void enableFCT();
+				void disableFCT();
 				bool checkFCT();
-				void clearFCT();
-				void startFCT();
-				void stopFCT();
+
+				// Alarm
+				void setAlarm(DateTime alarmTime, bool alarmMode);
+				void enableAlarm();
+				void disableAlarm();
+				bool checkAlarm();
 
             private:
                 byte i2cAddress;

@@ -8,6 +8,12 @@ namespace RX8010SJ {
 
     Adapter::~Adapter() {}
 
+	/**
+	 * 
+	 * PUBLIC FUNCTIONS
+	 * 
+	 */
+
 	bool Adapter::initAdapter() {
 		Wire.begin();
   		delay(40);
@@ -139,32 +145,83 @@ namespace RX8010SJ {
 		}
 	}
 
-	bool Adapter::checkFCT() {
-		byte flag = readFromModule(RX8010_FLAG);
-		bool interrupted = getValueFromBinary(flag, RX8010_TF_POS) == 1;
-
-		if (interrupted) {
-			clearFCT();
-		}
-
-		return interrupted;
-	}
-
-	void Adapter::clearFCT() {
-		writeFlag(RX8010_FLAG, RX8010_TF_POS, 0);
-	}
-
-	void Adapter::startFCT() {
+	void Adapter::enableFCT() {
 		writeFlag(RX8010_CTRL, RX8010_STOP_POS, 0);
 		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 0);
 		writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
 		writeFlag(RX8010_EXT, RX8010_TE_POS, 1);
 	}
 
-	void Adapter::stopFCT() {
+	void Adapter::disableFCT() {
 		writeFlag(RX8010_EXT, RX8010_TE_POS, 0);
 		writeFlag(RX8010_CTRL, RX8010_TSTP_POS, 1);
 	}
+
+	bool Adapter::checkFCT() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool interrupted = getValueFromBinary(flag, RX8010_TF_POS) == 1;
+
+		if (interrupted) {
+			writeFlag(RX8010_FLAG, RX8010_TF_POS, 0);
+		}
+
+		return interrupted;
+	}
+
+	void Adapter::setAlarm(DateTime alarmTime, bool dayOfWeek) {
+		byte minute = alarmTime.minute % 10;
+		byte hour = alarmTime.hour % 10;
+
+		minute = setFortyBinary(minute, alarmTime.minute);
+		minute = setTwentyBinary(minute, alarmTime.minute);
+		minute = setTenBinary(minute, alarmTime.minute);
+
+		hour = setTwentyBinary(hour, alarmTime.hour);
+		hour = setTenBinary(hour, alarmTime.hour);
+
+		writeToModule(RX8010_ALMIN, minute);
+		writeToModule(RX8010_ALHOUR, hour);
+
+		if (dayOfWeek) {
+			writeToModule(RX8010_ALWDAY, alarmTime.dayOfWeek);
+		} else {
+			byte day = alarmTime.dayOfMonth % 10;
+
+			day = setTwentyBinary(hour, alarmTime.hour);
+			day = setTenBinary(hour, alarmTime.hour);
+
+			writeToModule(RX8010_ALWDAY, day);
+		}
+
+		writeFlag(RX8010_EXT, RX8010_WADA_POS, dayOfWeek ? 0 : 1);
+	}
+
+	void Adapter::enableAlarm() {
+		writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+		writeFlag(RX8010_CTRL, RX8010_AIE_POS, 1);
+	}
+
+	void Adapter::disableAlarm() {
+		writeFlag(RX8010_CTRL, RX8010_AIE_POS, 0);
+		writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+	}
+
+	bool Adapter::checkAlarm() {
+		byte flag = readFromModule(RX8010_FLAG);
+		bool triggered = getValueFromBinary(flag, RX8010_AF_POS) == 1;
+
+		if (triggered) {
+			writeFlag(RX8010_FLAG, RX8010_AF_POS, 0);
+		}
+
+		return triggered;
+	}
+
+	/**
+	 * 
+	 * PRIVATE FUNCTIONS
+	 * 
+	 */
 
 	byte Adapter::readFromModule(byte address) {
 		Wire.beginTransmission(i2cAddress);

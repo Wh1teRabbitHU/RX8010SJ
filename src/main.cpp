@@ -48,10 +48,10 @@ void setup() {
 		adapter.writeDateTime(defaultDateTime);
 	}
 
-	adapter.stopFCT();
+	adapter.disableFCT();
 	adapter.setFCTOutput(0);
 	adapter.setFCTCounter(1, 0b010); // 1 seconds
-	adapter.startFCT();
+	adapter.enableFCT();
 
 	Serial.println("Initialised");
 }
@@ -64,11 +64,11 @@ void loop() {
 	if (interrupted) {
 		Serial.println("1 second passed");
 		readDateTime();
-		adapter.stopFCT();
+		adapter.disableFCT();
 
 		Serial.println("I pause it for 5 seconds");
 		delay(5000);
-		adapter.startFCT();
+		adapter.enableFCT();
 		Serial.println("Started");
 	}
 }
