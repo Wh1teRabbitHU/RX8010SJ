@@ -48,6 +48,8 @@
 		#define RX8010_WADA_POS  3
 		#define RX8010_AF_POS    3
 
+		#define RX8010_AL_DISABLED 0b10000000
+
 		struct DateTime {
 			byte second;
 			byte minute;

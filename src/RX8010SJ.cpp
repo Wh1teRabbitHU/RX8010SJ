@@ -9,9 +9,9 @@ namespace RX8010SJ {
     Adapter::~Adapter() {}
 
 	/**
-	 * 
+	 *
 	 * PUBLIC FUNCTIONS
-	 * 
+	 *
 	 */
 
 	bool Adapter::initAdapter() {
@@ -169,26 +169,41 @@ namespace RX8010SJ {
 	}
 
 	void Adapter::setAlarm(DateTime alarmTime, bool dayOfWeek) {
-		byte minute = alarmTime.minute % 10;
-		byte hour = alarmTime.hour % 10;
+		byte minute;
+		byte hour;
 
-		minute = setFortyBinary(minute, alarmTime.minute);
-		minute = setTwentyBinary(minute, alarmTime.minute);
-		minute = setTenBinary(minute, alarmTime.minute);
+		if (alarmTime.minute == 255) {
+			minute = RX8010_AL_DISABLED;
+		} else {
+			minute = alarmTime.minute % 10;
+			minute = setFortyBinary(minute, alarmTime.minute);
+			minute = setTwentyBinary(minute, alarmTime.minute);
+			minute = setTenBinary(minute, alarmTime.minute);
+		}
 
-		hour = setTwentyBinary(hour, alarmTime.hour);
-		hour = setTenBinary(hour, alarmTime.hour);
+		if (alarmTime.hour == 255) {
+			hour = RX8010_AL_DISABLED;
+		} else {
+			hour = alarmTime.hour % 10;
+			hour = setTwentyBinary(hour, alarmTime.hour);
+			hour = setTenBinary(hour, alarmTime.hour);
+		}
 
 		writeToModule(RX8010_ALMIN, minute);
 		writeToModule(RX8010_ALHOUR, hour);
 
 		if (dayOfWeek) {
-			writeToModule(RX8010_ALWDAY, alarmTime.dayOfWeek);
+			writeToModule(RX8010_ALWDAY, alarmTime.dayOfWeek == 255 ? RX8010_AL_DISABLED : alarmTime.dayOfWeek);
 		} else {
-			byte day = alarmTime.dayOfMonth % 10;
+			byte day;
 
-			day = setTwentyBinary(hour, alarmTime.hour);
-			day = setTenBinary(hour, alarmTime.hour);
+			if (alarmTime.hour == 255) {
+				day = RX8010_AL_DISABLED;
+			} else {
+				day = alarmTime.dayOfMonth % 10;
+				day = setTwentyBinary(hour, alarmTime.hour);
+				day = setTenBinary(hour, alarmTime.hour);
+			}
 
 			writeToModule(RX8010_ALWDAY, day);
 		}
@@ -218,9 +233,9 @@ namespace RX8010SJ {
 	}
 
 	/**
-	 * 
+	 *
 	 * PRIVATE FUNCTIONS
-	 * 
+	 *
 	 */
 
 	byte Adapter::readFromModule(byte address) {
