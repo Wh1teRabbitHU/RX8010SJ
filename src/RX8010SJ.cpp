@@ -121,16 +121,16 @@ namespace RX8010SJ {
 		writeToModule(RX8010_YEAR, year);
 	}
 
-	void Adapter::setFCTCounter(uint16_t counterValue, byte tsel) {
-		byte firstHalf = counterValue & 0b11111111;
-		byte secondHalf = counterValue >> 8;
+	void Adapter::setFCTCounter(uint16_t multiplier, byte frequency) {
+		byte firstHalf = multiplier & 0b11111111;
+		byte secondHalf = multiplier >> 8;
 
 		writeToModule(RX8010_TCOUNT0, firstHalf);
 		writeToModule(RX8010_TCOUNT1, secondHalf);
 
-		writeFlag(RX8010_EXT, RX8010_TSEL0_POS, getValueFromBinary(tsel, RX8010_TSEL0_POS));
-		writeFlag(RX8010_EXT, RX8010_TSEL1_POS, getValueFromBinary(tsel, RX8010_TSEL1_POS));
-		writeFlag(RX8010_EXT, RX8010_TSEL2_POS, getValueFromBinary(tsel, RX8010_TSEL2_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL0_POS, getValueFromBinary(frequency, RX8010_TSEL0_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL1_POS, getValueFromBinary(frequency, RX8010_TSEL1_POS));
+		writeFlag(RX8010_EXT, RX8010_TSEL2_POS, getValueFromBinary(frequency, RX8010_TSEL2_POS));
 	}
 
 	uint16_t Adapter::getFCTCounter() {
@@ -140,11 +140,11 @@ namespace RX8010SJ {
 		return firstHalf + (secondHalf << 8);
 	}
 
-	void Adapter::setFCTOutput(byte output) {
-		if (output > 1) {
+	void Adapter::setFCTOutput(byte pin) {
+		if (pin > 1) {
 			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 0);
 		} else {
-			writeFlag(RX8010_IRQ, RX8010_TMPIN_POS, output);
+			writeFlag(RX8010_IRQ, RX8010_TMPIN_POS, pin);
 			writeFlag(RX8010_CTRL, RX8010_TIE_POS, 1);
 		}
 	}
@@ -171,47 +171,47 @@ namespace RX8010SJ {
 		return interrupted;
 	}
 
-	void Adapter::setAlarm(DateTime alarmTime, bool dayOfWeek) {
+	void Adapter::setAlarm(DateTime time, byte mode) {
 		byte minute;
 		byte hour;
 
-		if (alarmTime.minute == 255) {
+		if (time.minute == 255) {
 			minute = RX8010_AL_DISABLED;
 		} else {
-			minute = alarmTime.minute % 10;
-			minute = setFortyBinary(minute, alarmTime.minute);
-			minute = setTwentyBinary(minute, alarmTime.minute);
-			minute = setTenBinary(minute, alarmTime.minute);
+			minute = time.minute % 10;
+			minute = setFortyBinary(minute, time.minute);
+			minute = setTwentyBinary(minute, time.minute);
+			minute = setTenBinary(minute, time.minute);
 		}
 
-		if (alarmTime.hour == 255) {
+		if (time.hour == 255) {
 			hour = RX8010_AL_DISABLED;
 		} else {
-			hour = alarmTime.hour % 10;
-			hour = setTwentyBinary(hour, alarmTime.hour);
-			hour = setTenBinary(hour, alarmTime.hour);
+			hour = time.hour % 10;
+			hour = setTwentyBinary(hour, time.hour);
+			hour = setTenBinary(hour, time.hour);
 		}
 
 		writeToModule(RX8010_ALMIN, minute);
 		writeToModule(RX8010_ALHOUR, hour);
 
-		if (dayOfWeek) {
-			writeToModule(RX8010_ALWDAY, alarmTime.dayOfWeek == 255 ? RX8010_AL_DISABLED : alarmTime.dayOfWeek);
+		if (mode == 1) {
+			writeToModule(RX8010_ALWDAY, time.dayOfWeek == 255 ? RX8010_AL_DISABLED : time.dayOfWeek);
 		} else {
 			byte day;
 
-			if (alarmTime.hour == 255) {
+			if (time.hour == 255) {
 				day = RX8010_AL_DISABLED;
 			} else {
-				day = alarmTime.dayOfMonth % 10;
-				day = setTwentyBinary(hour, alarmTime.hour);
-				day = setTenBinary(hour, alarmTime.hour);
+				day = time.dayOfMonth % 10;
+				day = setTwentyBinary(hour, time.hour);
+				day = setTenBinary(hour, time.hour);
 			}
 
 			writeToModule(RX8010_ALWDAY, day);
 		}
 
-		writeFlag(RX8010_EXT, RX8010_WADA_POS, dayOfWeek ? 0 : 1);
+		writeFlag(RX8010_EXT, RX8010_WADA_POS, mode == 1 ? 0 : 1);
 	}
 
 	void Adapter::enableAlarm() {

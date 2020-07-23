@@ -84,15 +84,15 @@
 				void writeDateTime(DateTime dateTime);
 
 				// Fixed cycle interrupt
-				void setFCTCounter(uint16_t counterValue, byte tsel);
+				void setFCTCounter(uint16_t multiplier, byte frequency);
 				uint16_t getFCTCounter();
-				void setFCTOutput(byte output);
+				void setFCTOutput(byte pin);
 				void enableFCT();
 				void disableFCT();
 				bool checkFCT();
 
 				// Alarm
-				void setAlarm(DateTime alarmTime, bool alarmMode);
+				void setAlarm(DateTime time, byte mode);
 				void enableAlarm();
 				void disableAlarm();
 				bool checkAlarm();
