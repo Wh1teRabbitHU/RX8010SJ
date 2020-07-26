@@ -9,7 +9,11 @@ cache:
         - "~/.platformio"
 
 env:
+    - PLATFORMIO_CI_SRC=examples/Alarm/Alarm.ino
+    - PLATFORMIO_CI_SRC=examples/FixedCycleTimer/FixedCycleTimer.ino
+    - PLATFORMIO_CI_SRC=examples/FrequencyOutput/FrequencyOutput.ino
     - PLATFORMIO_CI_SRC=examples/InitAndRead/InitAndRead.ino
+    - PLATFORMIO_CI_SRC=examples/TimeUpdateInterrupt/TimeUpdateInterrupt.ino
 
 install:
     - pip install -U platformio
