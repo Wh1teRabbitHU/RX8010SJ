@@ -9,7 +9,7 @@
 
 # Introduction
 
-This is a library to handle Seiko's RX8010SJ RTC module with an arduino. Original datasheet can be found [here](https://support.epson.biz/td/api/doc_check.php?dl=app_RX8010SJ&amp;lang=en). To set up your module, you only need to power up and use the i2c protocol to communicate with it. You have to provide the slave address to the constructor to start the communication. As many other i2c devices, this one also needs pull up resistors on the communication ports. (I'm using 5K, but 10K or 1K should be also good) The library is using the built-in "Wire" library to send and receive messages.
+This is a library to handle Seiko's RX8010SJ RTC module with an arduino. Original datasheet can be found [here](files/RX8010SJ.pdf). To set up your module, you only need to power up and use the i2c protocol to communicate with it. You have to provide the slave address to the constructor to start the communication. As many other i2c devices, this one also needs pull up resistors on the communication ports. (I'm using 5K, but 10K or 1K should be also good) The library is using the built-in "Wire" library to send and receive messages.
 
 ## How to use it?
 
