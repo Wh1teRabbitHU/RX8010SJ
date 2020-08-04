@@ -49,7 +49,7 @@ void setup() {
 
 	Serial.println("Initialised");
 
-	adapter.setTUIMode(true);
+	adapter.setTUIMode(RX8010_TUI_MOD_MIN);
 	adapter.enableTUI();
 }
 
