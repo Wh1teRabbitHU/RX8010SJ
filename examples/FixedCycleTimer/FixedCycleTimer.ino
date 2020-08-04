@@ -48,8 +48,8 @@ void setup() {
 	}
 
 	adapter.disableFCT();
-	adapter.setFCTOutput(0);
-	adapter.setFCTCounter(1, 0b011); // 1 minutes
+	adapter.setFCTOutput(RX8010_FCT_OUT_IRQ2);
+	adapter.setFCTCounter(1, RX8010_FCT_FREQ_1_60); // 1 minutes
 	adapter.enableFCT();
 
 	Serial.println("Initialised");

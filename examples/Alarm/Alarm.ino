@@ -56,7 +56,7 @@ void setup() {
 	alarmTime.hour = 15;
 	alarmTime.dayOfWeek = 0b00011111;
 
-	adapter.setAlarm(alarmTime, 1);
+	adapter.setAlarm(alarmTime, RX8010_ALARM_MOD_WEEK);
 	adapter.enableAlarm();
 }
 

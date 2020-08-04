@@ -4,6 +4,30 @@
     #include "Arduino.h"
 	#include "Wire.h"
 
+	#define RX8010_FCT_FREQ_4096   0b000
+	#define RX8010_FCT_FREQ_64     0b001
+	#define RX8010_FCT_FREQ_1      0b010
+	#define RX8010_FCT_FREQ_1_60   0b011
+	#define RX8010_FCT_FREQ_1_3600 0b100
+
+	#define RX8010_FCT_OUT_IRQ1    0b01
+	#define RX8010_FCT_OUT_IRQ2    0b00
+	#define RX8010_FCT_OUT_OFF     0b10
+
+	#define RX8010_ALARM_IGNORE    0b11111111
+	#define RX8010_ALARM_MOD_MONTH 0b0
+	#define RX8010_ALARM_MOD_WEEK  0b1
+
+	#define RX8010_TUI_MOD_SEC     0b0
+	#define RX8010_TUI_MOD_MIN     0b1
+
+	#define RX8010_FOUT_FREQ_OFF   0b00
+	#define RX8010_FOUT_FREQ_1     0b01
+	#define RX8010_FOUT_FREQ_1024  0b10
+	#define RX8010_FOUT_FREQ_32768 0b11
+	#define RX8010_FOUT_IRQ1       0b01
+	#define RX8010_FOUT_IRQ2       0b00
+
     namespace RX8010SJ {
 		#define RX8010_SEC     0x10
 		#define RX8010_MIN     0x11
@@ -98,7 +122,7 @@
 				bool checkAlarm();
 
 				// Time Update Interrupt
-				void setTUIMode(bool minute);
+				void setTUIMode(byte mode);
 				void enableTUI();
 				void disableTUI();
 				bool checkTUI();

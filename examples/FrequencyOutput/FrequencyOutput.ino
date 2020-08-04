@@ -24,7 +24,7 @@ void setup() {
 
 	Serial.println("Initialised");
 
-	adapter.enableFOUT(0b10, 0);
+	adapter.enableFOUT(RX8010_FOUT_FREQ_1024, RX8010_FOUT_IRQ2);
 }
 
 void loop() {
@@ -35,5 +35,5 @@ void loop() {
 	delay(3000);
 
 	Serial.println("Turning back the frequency output for 10 seconds");
-	adapter.enableFOUT(0b10, 0);
+	adapter.enableFOUT(RX8010_FOUT_FREQ_1024, RX8010_FOUT_IRQ2);
 }

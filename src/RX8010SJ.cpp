@@ -14,6 +14,10 @@ namespace RX8010SJ {
 	 *
 	 */
 
+	/**
+	 * GENERAL
+	 */
+
 	bool Adapter::initAdapter() {
 		Wire.begin();
   		delay(40);
@@ -59,6 +63,10 @@ namespace RX8010SJ {
 	void Adapter::toggleGlobalStop(bool stopEnabled) {
 		writeFlag(RX8010_CTRL, RX8010_STOP_POS, stopEnabled ? 1 : 0);
 	}
+
+	/**
+	 * DATE TIME
+	 */
 
     DateTime Adapter::readDateTime() {
 		byte secondBin = readFromModule(RX8010_SEC);
@@ -121,6 +129,10 @@ namespace RX8010SJ {
 		writeToModule(RX8010_YEAR, year);
 	}
 
+	/**
+	 * FCT
+	 */
+
 	void Adapter::setFCTCounter(uint16_t multiplier, byte frequency) {
 		byte firstHalf = multiplier & 0b11111111;
 		byte secondHalf = multiplier >> 8;
@@ -171,11 +183,15 @@ namespace RX8010SJ {
 		return interrupted;
 	}
 
+	/**
+	 * ALARM
+	 */
+
 	void Adapter::setAlarm(DateTime time, byte mode) {
 		byte minute;
 		byte hour;
 
-		if (time.minute == 255) {
+		if (time.minute == RX8010_ALARM_IGNORE) {
 			minute = RX8010_AL_DISABLED;
 		} else {
 			minute = time.minute % 10;
@@ -184,7 +200,7 @@ namespace RX8010SJ {
 			minute = setTenBinary(minute, time.minute);
 		}
 
-		if (time.hour == 255) {
+		if (time.hour == RX8010_ALARM_IGNORE) {
 			hour = RX8010_AL_DISABLED;
 		} else {
 			hour = time.hour % 10;
@@ -195,12 +211,12 @@ namespace RX8010SJ {
 		writeToModule(RX8010_ALMIN, minute);
 		writeToModule(RX8010_ALHOUR, hour);
 
-		if (mode == 1) {
-			writeToModule(RX8010_ALWDAY, time.dayOfWeek == 255 ? RX8010_AL_DISABLED : time.dayOfWeek);
+		if (mode == RX8010_ALARM_MOD_WEEK) {
+			writeToModule(RX8010_ALWDAY, time.dayOfWeek == RX8010_ALARM_IGNORE ? RX8010_AL_DISABLED : time.dayOfWeek);
 		} else {
 			byte day;
 
-			if (time.hour == 255) {
+			if (time.hour == RX8010_ALARM_IGNORE) {
 				day = RX8010_AL_DISABLED;
 			} else {
 				day = time.dayOfMonth % 10;
@@ -211,7 +227,7 @@ namespace RX8010SJ {
 			writeToModule(RX8010_ALWDAY, day);
 		}
 
-		writeFlag(RX8010_EXT, RX8010_WADA_POS, mode == 1 ? 0 : 1);
+		writeFlag(RX8010_EXT, RX8010_WADA_POS, mode == RX8010_ALARM_MOD_WEEK ? 0 : 1);
 	}
 
 	void Adapter::enableAlarm() {
@@ -235,8 +251,12 @@ namespace RX8010SJ {
 		return triggered;
 	}
 
-	void Adapter::setTUIMode(bool minute) {
-		writeFlag(RX8010_EXT, RX8010_USEL_POS, minute ? 1 : 0);
+	/**
+	 * TIME UPDATE INTERRUPT
+	 */
+
+	void Adapter::setTUIMode(byte mode) {
+		writeFlag(RX8010_EXT, RX8010_USEL_POS, mode);
 	}
 
 	void Adapter::enableTUI() {
@@ -258,6 +278,10 @@ namespace RX8010SJ {
 		return interrupted;
 	}
 
+	/**
+	 * FREQUENCY OUTPUT
+	 */
+
 	void Adapter::enableFOUT(byte frequency, byte pin) {
 		switch (frequency) {
 			case 3:
@@ -278,7 +302,7 @@ namespace RX8010SJ {
 				return;
 		}
 
-		writeFlag(RX8010_IRQ, RX8010_FOPIN0_POS, pin == 1 ? 1 : 0);
+		writeFlag(RX8010_IRQ, RX8010_FOPIN0_POS, pin);
 		writeFlag(RX8010_IRQ, RX8010_FOPIN1_POS, 0);
 	}
 

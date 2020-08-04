@@ -1,35 +1,9 @@
-#include <Arduino.h>
 #include <RX8010SJ.h>
 
 #define RX8010_I2C_ADDR 0x32
 
-const char * dayOfWeekStrings[] = {
-  	"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-};
-
 RX8010SJ::Adapter adapter = RX8010SJ::Adapter(RX8010_I2C_ADDR);
 RX8010SJ::DateTime defaultDateTime = RX8010SJ::DateTime();
-
-void readDateTime() {
-	RX8010SJ::DateTime dateTime = adapter.readDateTime();
-
-	Serial.println("-------------------------------");
-	Serial.print("20");
-	Serial.print(dateTime.year);
-	Serial.print("-");
-	Serial.print(dateTime.month);
-	Serial.print("-");
-	Serial.print(dateTime.dayOfMonth);
-	Serial.print(" (");
-	Serial.print(dayOfWeekStrings[dateTime.dayOfWeek]);
-	Serial.print(") ");
-	Serial.print(dateTime.hour);
-	Serial.print(":");
-	Serial.print(dateTime.minute);
-	Serial.print(":");
-	Serial.println(dateTime.second);
-	Serial.println("-------------------------------");
-}
 
 void setup() {
 	defaultDateTime.second = 5;
@@ -48,27 +22,10 @@ void setup() {
 		adapter.writeDateTime(defaultDateTime);
 	}
 
-	adapter.disableFCT();
-	adapter.setFCTOutput(0);
-	adapter.setFCTCounter(1, 0b010); // 1 seconds
-	adapter.enableFCT();
-
 	Serial.println("Initialised");
+
+	adapter.enableFOUT(0b01, 0);
 }
 
 void loop() {
-	delay(100);
-
-	bool interrupted = adapter.checkFCT();
-
-	if (interrupted) {
-		Serial.println("1 second passed");
-		readDateTime();
-		adapter.disableFCT();
-
-		Serial.println("I pause it for 5 seconds");
-		delay(5000);
-		adapter.enableFCT();
-		Serial.println("Started");
-	}
 }
