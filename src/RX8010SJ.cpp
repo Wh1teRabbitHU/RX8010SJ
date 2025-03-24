@@ -321,7 +321,7 @@ namespace RX8010SJ {
 		Wire.beginTransmission(i2cAddress);
 		Wire.write(address);
 		Wire.endTransmission();
-		Wire.requestFrom(i2cAddress, 1);
+		Wire.requestFrom((uint8_t)i2cAddress, (uint8_t) 1);
 
 		if (Wire.available()) {
 			return Wire.read();

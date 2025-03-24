@@ -6,4 +6,3 @@
 .vscode/extensions.json
 include/README
 test/README
-src/main.cpp
